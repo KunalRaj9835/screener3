@@ -46,14 +46,12 @@ export default function MyQuery() {
   };
 
   const runQuery = (query: SavedQuery) => {
-    // Create URL parameters from the saved query
     const searchParams = new URLSearchParams();
     Object.keys(query.filters).forEach(key => {
       if (query.filters[key]) {
         searchParams.append(key, query.filters[key]);
       }
     });
-    
     router.push(`/query-results?${searchParams.toString()}`);
   };
 
@@ -62,6 +60,14 @@ export default function MyQuery() {
     if (words.length <= wordLimit) return text;
     return words.slice(0, wordLimit).join(' ') + '...';
   };
+
+  const TAG_COLORS = [
+  '#fde4f8', // Pink
+  '#dbf3f8', // Light Blue
+  '#dde6fa', // Light Purple
+  '#d9f4e5', // Light Green
+  '#fbeddc'  // Light Orange
+  ];
 
   if (loading) {
     return (
@@ -75,23 +81,12 @@ export default function MyQuery() {
   }
 
   return (
-    <div className="min-h-screen bg-White">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.push('/')}
-                className="flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                New Search
-              </button>
-              <h1 className="text-2xl font-bold text-gray-800">My Saved Queries</h1>
-            </div>
+            <h1 className="text-2xl font-bold text-[#9bec00]">My Saved Queries</h1>
             <div className="text-sm text-gray-600">
               {savedQueries.length} saved {savedQueries.length === 1 ? 'query' : 'queries'}
             </div>
@@ -114,7 +109,10 @@ export default function MyQuery() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedQueries.map((query) => (
-              <div key={query.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div
+                key={query.id}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              >
                 {/* Query Name */}
                 <h3 className="font-semibold text-lg text-gray-800 mb-3 line-clamp-2">
                   {query.name}
@@ -122,17 +120,21 @@ export default function MyQuery() {
 
                 {/* Tags */}
                 {query.tags && query.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {query.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
+  <div className="flex flex-wrap gap-2 mb-3">
+    {query.tags.map((tag, index) => {
+      const bgColor = TAG_COLORS[index % TAG_COLORS.length];
+      return (
+        <span
+          key={index}
+          className="inline-block text-xs font-medium px-2 py-1 rounded"
+          style={{ backgroundColor: bgColor }}
+        >
+          {tag}
+        </span>
+      );
+    })}
+  </div>
+)}
 
                 {/* Description */}
                 {query.description && (
@@ -142,34 +144,40 @@ export default function MyQuery() {
                 )}
 
                 {/* Query Details */}
-                <div className="text-xs text-gray-500 mb-4 space-y-1">
-                  <div>Created: {new Date(query.timestamp).toLocaleDateString()}</div>
-                  <div>Results: {query.resultCount} of {query.totalCount} stocks</div>
-                  {Object.keys(query.filters).length > 0 && (
-                    <div>
-                      Filters: {Object.entries(query.filters)
-                        .filter(([_, value]) => value)
-                        .map(([key, value]) => `${key}: ${value}`)
-                        .join(', ').substring(0, 50)}
-                      {Object.entries(query.filters)
-                        .filter(([_, value]) => value)
-                        .map(([key, value]) => `${key}: ${value}`)
-                        .join(', ').length > 50 && '...'}
-                    </div>
-                  )}
-                </div>
+                {(query.timestamp || query.resultCount || Object.keys(query.filters).length > 0) && (
+                  <div className="text-xs text-black space-y-1 mb-4">
+                    {query.timestamp && (
+                      <div>Created: {new Date(query.timestamp).toLocaleDateString()}</div>
+                    )}
+                    <div>Results: {query.resultCount} of {query.totalCount} stocks</div>
+                    {Object.keys(query.filters).length > 0 && (
+                      <div>
+                        Filters:{' '}
+                        {Object.entries(query.filters)
+                          .filter(([_, value]) => value)
+                          .map(([key, value]) => `${key}: ${value}`)
+                          .join(', ')
+                          .substring(0, 50)}
+                        {Object.entries(query.filters)
+                          .filter(([_, value]) => value)
+                          .map(([key, value]) => `${key}: ${value}`)
+                          .join(', ').length > 50 && '...'}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex space-x-2">
                   <button
                     onClick={() => runQuery(query)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="flex-1 bg-[#9bec00] hover:bg-[#055C0D] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
                     Run Query
                   </button>
                   <button
                     onClick={() => deleteQuery(query.id!)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                    className="bg-[#ffffff] border hover:bg-[#E67471] text-red-500 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   >
                     Delete
                   </button>
